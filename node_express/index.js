@@ -1,55 +1,33 @@
-// Importa el módulo Express para facilitar la creación del servidor
 const express = require("express");
+const { connect } = require("./utils/db");
+const characterRoutes = require("./routes/character.routes");
+
+connect(); // Conectamos a MongoDB
 
 const PORT = 3000;
-
-// Crea una instancia de la aplicación Express
 const server = express();
 
-// Crea un router para definir rutas separadamente
-const router = express.Router();
+// MIDDLEWARES IMPORTANTES: Permiten leer el req.body que enviamos
+server.use(express.json());
+server.use(express.urlencoded({ extended: false }));
 
-// Ruta raíz: responde con un saludo
-router.get("/", (req, res) => {
-  res.send("Hello Prometeo!");
+// Conectamos las rutas (Todas empezarán por /characters)
+server.use("/characters", characterRoutes);
+
+// Manejador de rutas no encontradas (Error 404)
+server.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.status = 404;
+  next(error);
 });
 
-// Ruta /movies: responde con una lista de películas
-router.get("/movies", (req, res) => {
-  const movies = ["Harry Potter", "Titanic", "Back to the Future"];
-  res.send(movies);
+// Manejador de errores generales
+server.use((error, req, res, next) => {
+  return res
+    .status(error.status || 500)
+    .json(error.message || "Unexpected error");
 });
 
-// NUEVA RUTA 1: Parámetros de ruta (req.params)
-router.get("/movies/:movie", (req, res) => {
-  const nameMovie = req.params.movie;
-  const movies = ["Harry Potter", "Titanic", "Back to the Future"];
-
-  const findMovieIndex = movies.indexOf(nameMovie);
-
-  if (findMovieIndex === -1) {
-    return res.send("No se ha encontrado la película");
-  }
-  res.send(movies[findMovieIndex]);
-});
-
-// NUEVA RUTA 2: Parámetros de consulta (req.query)
-router.get("/query", (req, res) => {
-  const nombre = req.query.nombre;
-  const apellido = req.query.apellido;
-  res.send(
-    "¡Hola Mundo! os saluda => " +
-      nombre +
-      " " +
-      apellido +
-      " desde GET 2, con Query params",
-  );
-});
-
-// Usa el router para manejar las rutas desde la raíz
-server.use("/", router);
-
-// Inicia el servidor y muestra un mensaje en consola
 server.listen(PORT, () => {
   console.log(`Server running in http://localhost:${PORT}`);
 });
