@@ -91,4 +91,16 @@ router.put("/edit/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Movie.findByIdAndDelete(id);
+
+    return res.status(200).json("Movie deleted!");
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
 module.exports = router;
