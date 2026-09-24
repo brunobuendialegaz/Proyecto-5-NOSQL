@@ -56,4 +56,21 @@ router.get("/year/:year", async (req, res) => {
   }
 });
 
+router.post("/create", async (req, res) => {
+  try {
+    const newMovie = new Movie({
+      title: req.body.title,
+      director: req.body.director,
+      year: req.body.year,
+      genre: req.body.genre,
+    });
+
+    const createdMovie = await newMovie.save();
+
+    return res.status(201).json(createdMovie);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
 module.exports = router;

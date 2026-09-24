@@ -7,6 +7,8 @@ connect();
 const PORT = 3000;
 const server = express();
 
+server.use(express.json());
+server.use(express.urlencoded({ extended: false }));
 server.use("/movies", movieRoutes);
 
 server.listen(PORT, () => {
